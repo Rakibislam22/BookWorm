@@ -30,3 +30,34 @@ export const postUser = async (payload) => {
         insertedId: result.insertedId?.toString(),
     };
 };
+
+
+export const loginUser = async (payload) => {
+    const { email, password } = payload;
+
+    if (!email || !password) {
+        return { success: false };
+    }
+
+    const users = await dbConnect(collections.USERS);
+    const user = await users.findOne({ email });
+
+    if (!user) {
+        return { success: false };
+    }
+
+    const isMatched = await bcrypt.compare(password, user.password);
+    if (!isMatched) {
+        return { success: false };
+    }
+
+    return {
+        success: true,
+        user: {
+            id: user._id.toString(),
+            name: user.name,
+            email: user.email,
+            role: user.role,
+        },
+    };
+};

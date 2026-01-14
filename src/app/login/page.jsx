@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { FiBook, FiMail, FiLock } from 'react-icons/fi';
 import toast from 'react-hot-toast';
+import { loginUser } from '@/actions/server/auth';
 
 export default function LoginPage() {
     const router = useRouter();
@@ -19,17 +20,15 @@ export default function LoginPage() {
         setLoading(true);
 
         try {
-            const res = await fetch('/api/auth/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(formData),
-            });
-
-            const data = await res.json();
+            const data = await loginUser(formData); // ✅ await added
 
             if (data.success) {
                 toast.success('Login successful!');
-                router.push(data.user.role === 'admin' ? '/admin/dashboard' : '/my-library');
+                router.push(
+                    data.user.role === 'admin'
+                        ? '/admin/dashboard'
+                        : '/my-library'
+                );
                 router.refresh();
             } else {
                 toast.error(data.error || 'Login failed');
