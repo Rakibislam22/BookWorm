@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { FiBook, FiMail, FiLock, FiUser, FiUpload } from 'react-icons/fi';
 import toast from 'react-hot-toast';
+import { postUser } from '@/actions/server/auth';
 
 export default function RegisterPage() {
     const router = useRouter();
@@ -57,17 +58,15 @@ export default function RegisterPage() {
         setLoading(true);
 
         try {
-            const res = await fetch('/api/auth/register', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(formData),
-            });
-
-            const data = await res.json();
+            const data = postUser(formData); // ✅ direct call
 
             if (data.success) {
                 toast.success('Registration successful!');
-                router.push(data.user.role === 'admin' ? '/admin/dashboard' : '/my-library');
+                router.push(
+                    data.user.role === 'admin'
+                        ? '/admin/dashboard'
+                        : '/my-library'
+                );
                 router.refresh();
             } else {
                 toast.error(data.error || 'Registration failed');
@@ -78,6 +77,7 @@ export default function RegisterPage() {
             setLoading(false);
         }
     };
+
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-gray-950 to-black px-4">
